@@ -1,12 +1,8 @@
 name: Test
 on:
   workflow_dispatch:
-  schedule:
-    # weekly, randomly chosen time
-    - cron: "17 18 * * 0"
   push:
-    branches-ignore:
-      - 'test-report'
+    branches: [ master ]
 
 concurrency:
   group: ${{ github.workflow }}
@@ -113,46 +109,3 @@ jobs:
         with:
           name: disk-space-report-single
           path: ${{ env.REPORT_DIR }}
-
-  collect-reports:
-    name: Collect reports
-    runs-on: ubuntu-latest
-    needs: test-action
-    env:
-      REPORT_FILE: space-free-report.md
-
-    steps:
-      - name: Download single reports
-        uses: actions/download-artifact@v3
-        with:
-          name: disk-space-report-single
-          path: ${{ env.REPORT_DIR }}
-
-      - name: Join Markdown report
-        run: |
-          echo 'OS | Android SDKs removed | .NET SDKs removed | Haskell removed | CodeQL Removed | Cached Docker Images Removed | GB freed | GB free | Elapsed Time (seconds) |' > "${REPORT_DIR}/${REPORT_FILE}"
-          echo '---|:--------------------:|:-----------------:|:---------------:|:--------------:|:----------------------------:|:--------:|:-------:|:----------------------:|' >> "${REPORT_DIR}/${REPORT_FILE}"
-          cat ${REPORT_DIR}/*.txt >> "${REPORT_DIR}/${REPORT_FILE}"
-
-      - name: Upload collected report
-        uses: actions/upload-artifact@v3
-        with:
-          name: disk-space-report-markdown
-          path: ${{ env.REPORT_DIR }}/${{ env.REPORT_FILE }}
-
-      - name: Checkout report branch
-        uses: actions/checkout@v3
-        with:
-          ref: test-report
-
-      - name: Overwrite old report
-        run: |
-          cp README.md.template README.md
-          cat ${{ env.REPORT_DIR }}/${{ env.REPORT_FILE }} >> README.md
-
-          cat "${REPORT_DIR}/${REPORT_FILE}"
-
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add README.md
-          git commit -m "Generated new report" && git push || echo "Report unchanged, not updating."
