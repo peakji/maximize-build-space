@@ -67,8 +67,8 @@ jobs:
 
       - name: Calculate freed space and elapsed time
         run: |
-          FREED_GIG=$(expr ${FREE_GIG_AFTER} - ${FREE_GIG_BEFORE})
-          ELAPSED_TIME=$(expr ${END_TIME} - ${START_TIME})
+          FREED_GIG=$((${FREE_GIG_AFTER} - ${FREE_GIG_BEFORE}))
+          ELAPSED_TIME=$((${END_TIME} - ${START_TIME}))
 
           echo "Free space before: ${FREE_GIG_BEFORE}G"
           echo "Free space after : ${FREE_GIG_AFTER}G"
