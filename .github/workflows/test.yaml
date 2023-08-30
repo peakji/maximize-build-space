@@ -64,3 +64,13 @@ jobs:
       - name: Determine free space after
         run: |
           echo "FREE_GIG_AFTER=$(df --output=avail --sync -BG "${{ github.workspace }}" | tail -1 | sed 's/[^0-9]*//g')" >> $GITHUB_ENV
+
+      - name: Calculate freed space and elapsed time
+        run: |
+          FREED_GIG=$(expr ${FREE_GIG_AFTER} - ${FREE_GIG_BEFORE})
+          ELAPSED_TIME=$(expr ${END_TIME} - ${START_TIME})
+
+          echo "Free space before: ${FREE_GIG_BEFORE}G"
+          echo "Free space after : ${FREE_GIG_AFTER}G"
+          echo "Space freed      : ${FREED_GIG}G"
+          echo "Time elapsed    : ${ELAPSED_TIME} seconds"
